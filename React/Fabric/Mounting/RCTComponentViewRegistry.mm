@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-present, Facebook, Inc.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -64,7 +64,7 @@
 
 #endif
 
-const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 256;
+const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 1024;
 
 @implementation RCTComponentViewRegistry {
   NSMapTable<id, UIView<RCTComponentViewProtocol> *> *_registry;
@@ -119,6 +119,13 @@ const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 256;
   [_registry removeObjectForKey:(__bridge id)(void *)tag];
   componentView.tag = 0;
   [self _enqueueComponentViewWithName:componentName componentView:componentView];
+}
+
+- (void)preliminaryCreateComponentViewWithName:(NSString *)componentName
+{
+  RCTAssertMainQueue();
+  [self _enqueueComponentViewWithName:componentName
+                        componentView:[self _createComponentViewWithName:componentName]];
 }
 
 - (UIView<RCTComponentViewProtocol> *)componentViewByTag:(ReactTag)tag
